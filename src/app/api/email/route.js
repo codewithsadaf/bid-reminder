@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import connectToDatabase from '@/lib/db';
 import { Reminder } from '../../models/reminder';
-import "../../../lib/scheduler"
+import { scheduleEmails } from '@/lib/scheduler';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -35,6 +35,15 @@ const sendNotificationEmail = async ({ recipient, candidateName, searchQuery }) 
 };
 
 export async function POST(req) {
+    const headers = new Headers({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    });
+
+    if (req.method === 'OPTIONS') {
+        return new Response(null, { status: 204, headers });
+    }
     try {
         await connectToDatabase();
 
@@ -64,6 +73,8 @@ export async function POST(req) {
             day,
             time,
         });
+
+        await scheduleEmails();
 
         if (relevancyScore >= 100) { 
             for (const recipient of recipients) {
