@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TextInput = ({ label, name, register, errors, ...rest }) => (
+const TextInput = ({ label, name, register, errors = {}, ...rest }) => ( 
     <div>
         <label className="block text-sm font-medium text-gray-700">
             {label}

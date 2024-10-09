@@ -18,7 +18,7 @@ const AddBidRemind = () => {
                 Add Bid Reminder
             </Button>
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} >
-                <BidForm/>
+                <BidForm onClose={handleCloseModal}/>
             </Modal>
         </div>
     )

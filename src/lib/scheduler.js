@@ -7,33 +7,33 @@ const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_APP_PASSWORD,
     },
 });
 
-const sendEmail = async (to, subject, candidateName, searchQuery) => {
-    const emailContent = `
-Hello!
+    const sendEmail = async (to, subject, candidateName, searchQuery) => {
+        const emailContent = `
+    Hello!
 
-This is ${candidateName}. You’ve requested notifications about ${searchQuery}.
+    This is ${candidateName}. You’ve requested notifications about ${searchQuery}.
 
-Have a great day,
+    Have a great day,
 
-${candidateName}
-`;
+    ${candidateName}
+    `;
 
-    try {
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to,
-            subject,
-            text: emailContent,
-        });
-        console.log(`Email sent to ${to}`);
-    } catch (error) {
-        console.error('Error sending email:', error);
-    }
-};
+        try {
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to,
+                subject,
+                text: emailContent,
+            });
+            console.log(`Email sent to ${to}`);
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+    };
 
 const getCronExpression = (frequency, day, time) => {
     const [hour, minute] = time.split(':').map(Number);
@@ -62,18 +62,20 @@ const scheduleEmails = async () => {
     try {
         await connectToDatabase();
         const allReminders = await Reminder.find().exec();
-        console.log("allReminders >>>>>",allReminders);
+        console.log("allReminders >>>>>", allReminders);
 
         allReminders.forEach((notification) => {
-            const { email, frequency, day, time, searchQuery, candidateName } = notification;
+            const { recipients, frequency, day, time, searchQuery, candidateName } = notification;
             const cronExpression = getCronExpression(frequency, day, time);
 
             if (cronExpression) {
-                cron.schedule(cronExpression, async () => {
-                    await sendEmail(email, 'Notification Update', candidateName, searchQuery);
-                });
+                recipients.forEach((email) => {
+                    cron.schedule(cronExpression, async () => {
+                        await sendEmail(email, 'Notification Update', candidateName, searchQuery);
+                    });
 
-                console.log(`Scheduled email for ${email} with cron expression: ${cronExpression}`);
+                    console.log(`Scheduled email for ${email} with cron expression: ${cronExpression}`);
+                });
             } else {
                 console.error(`Invalid cron expression for notification: ${notification}`);
             }
