@@ -58,7 +58,7 @@ const getCronExpression = (frequency, day, time) => {
     return '';
 };
 
-const scheduleEmails = async () => {
+export const scheduleEmails = async () => {
     try {
         await connectToDatabase();
         const allReminders = await Reminder.find().exec();
@@ -85,4 +85,3 @@ const scheduleEmails = async () => {
     }
 };
 
-scheduleEmails();
