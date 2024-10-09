@@ -5,6 +5,7 @@ const reminderSchema = new mongoose.Schema({
     candidateName: String,
     searchQuery: String,
     frequency: String,
+    relevancyScore: Number,
     day: String,
     time: String,
 }, {
